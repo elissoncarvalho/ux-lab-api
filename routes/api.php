@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::resource('exame', 'ExameController');
 Route::resource('cliente', 'ClienteController');
+Route::resource('ordem_pedido', 'OrdemPedidoController');
+Route::resource('exame', 'ListaExameController');
+
 

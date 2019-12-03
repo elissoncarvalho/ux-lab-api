@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class ExameController extends Controller
+class ListaExameController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,7 +14,6 @@ class ExameController extends Controller
      */
     public function index()
     {
-        Log::info('request api');
         $exames = [
             ['prefixo' => 'glicose', 'descricao' => 'Glicose', 'is_selected' => false],
             ['prefixo' => 'hemograma', 'descricao' => 'Hemograma', 'is_selected' => true],

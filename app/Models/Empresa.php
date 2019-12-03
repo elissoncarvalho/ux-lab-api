@@ -5,16 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Exame extends Model
+class Empresa extends Model
 {
     use SoftDeletes;
 
-    function status()
+    function endereco()
     {
         return $this->hasOne(
-            'App\Models\Status',
-            'status_id',
-            'id'
+            'App\Models\Endereco',
+            'id',
+            'endereco_id'
         );
     }
 }

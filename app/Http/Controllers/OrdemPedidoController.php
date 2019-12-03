@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Cliente;
+use App\Models\OrdemPedido;
 use App\Models\Endereco;
 use App\Services\ExceptionHandler;
 use Carbon\Carbon;
@@ -10,18 +10,25 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class ClienteController extends Controller
+class OrdemPedidoController extends Controller
 {
     public function index()
     {
         try {
-            $clientes = Cliente::with('endereco')->get();
+            $ordemPedido = OrdemPedido::with('cliente')
+            ->with('empresa')
+            ->with('empresa.endereco')
+            ->with('cliente.endereco')
+            ->with('convenio')
+            ->with('status')
+            ->with('exames')
+            ->get();
 
-            return response($clientes);
+            return response($ordemPedido, 404);
         } catch (\Exception $e) {
             return ExceptionHandler::process(
                 $e,
-                'Error ao listar Clientes.'
+                'Error ao listar Ordem Pedidos.'
             );
         }
     }
@@ -29,17 +36,17 @@ class ClienteController extends Controller
     public function show(int $id)
     {
         try {
-            $cliente = Cliente::with('endereco')->find($id);
+            $cliente = OrdemPedido::with('endereco')->find($id);
 
             if (empty($cliente)) {
-                return response(['msg' => 'Não foi possível localizar o Cliente.'], 404);
+                return response(['msg' => 'Não foi possível localizar o OrdemPedido.'], 404);
             }
 
             return response($cliente);
         } catch (\Exception $e) {
             return ExceptionHandler::process(
                 $e,
-                'Error ao Consultar Cliente.'
+                'Error ao Consultar OrdemPedido.'
             );
         }
     }
@@ -48,18 +55,18 @@ class ClienteController extends Controller
     {
         try {
             DB::beginTransaction();
-            $cliente = Cliente::withTrashed()->find($id);
+            $cliente = OrdemPedido::withTrashed()->find($id);
 
             if (empty($cliente)) {
-                return response(['msg' => 'Não foi possível localizar o Cliente.'], 404);
+                return response(['msg' => 'Não foi possível localizar o OrdemPedido.'], 404);
             }
 
             if ($cliente->trashed()) {
                 $cliente->restore();
-                $msg = 'Cliente ativado com sucesso';
+                $msg = 'OrdemPedido ativado com sucesso';
             } else {
                 $cliente->delete();
-                $msg = 'Cliente inativado com sucesso';
+                $msg = 'OrdemPedido inativado com sucesso';
             }
 
             DB::commit();
@@ -68,26 +75,26 @@ class ClienteController extends Controller
             DB::rollBack();
             return ExceptionHandler::process(
                 $e,
-                'Error ao Ativar \ Inativar Cliente.'
+                'Error ao Ativar \ Inativar OrdemPedido.'
             );
         }
     }
 
     public function store(Request $request)
     {
-        // Log::info(json_encode($request->all()));
-        // Log::info(json_encode($request->nome));
-        // return response($request->all(),404);
+        Log::info(json_encode($request->all()));
+        Log::info(json_encode($request->nome));
+        return response($request->all(), 404);
         try {
             DB::beginTransaction();
 
-            $cliente = Cliente::where('email', $request->email)->orWhere('cpf', $request->cpf)->withTrashed()->count();
+            $cliente = OrdemPedido::where('email', $request->email)->orWhere('cpf', $request->cpf)->withTrashed()->count();
 
             if ($cliente > 0) {
                 return response(['msg' => 'Email ou CPF já esta sendo utilizado.'], 409);
             }
 
-            $codCliente = Cliente::orderBy('cod_cliente', 'desc')->first()->cod_cliente + 1;
+            $codCliente = OrdemPedido::orderBy('cod_cliente', 'desc')->first()->cod_cliente + 1;
 
             $endereco = new Endereco();
             $endereco->endereco = $request->endereco['endereco'];
@@ -100,7 +107,7 @@ class ClienteController extends Controller
             $endereco->cep = $request->endereco['cep'] ?? '35600000';
             $endereco->save();
 
-            $cliente = new Cliente();
+            $cliente = new OrdemPedido();
             $cliente->cod_cliente = $codCliente;
             $cliente->nome = $request->nome;
             $cliente->email = $request->email;
@@ -119,7 +126,7 @@ class ClienteController extends Controller
             DB::rollBack();
             return ExceptionHandler::process(
                 $e,
-                'Error ao Cadastrar Cliente.'
+                'Error ao Cadastrar OrdemPedido.'
             );
         }
     }
@@ -129,16 +136,16 @@ class ClienteController extends Controller
         try {
             DB::beginTransaction();
 
-            $cliente = Cliente::where('email', $request->email)->orWhere('cpf', $request->cpf)->withTrashed()->count();
+            $cliente = OrdemPedido::where('email', $request->email)->orWhere('cpf', $request->cpf)->withTrashed()->count();
 
             if ($cliente > 0) {
                 return response(['msg' => 'Email ou CPF já esta sendo utilizado.'], 409);
             }
 
-            $cliente = Cliente::find($id);
+            $cliente = OrdemPedido::find($id);
 
             if (empty($cliente)) {
-                return response(['msg' => 'Não foi possível localizar o Cliente.'], 404);
+                return response(['msg' => 'Não foi possível localizar o OrdemPedido.'], 404);
             }
 
             $cliente->nome = $request->nome ?? $cliente->nome;
@@ -162,7 +169,7 @@ class ClienteController extends Controller
             DB::rollBack();
             return ExceptionHandler::process(
                 $e,
-                'Error ao Atualizar Cliente.'
+                'Error ao Atualizar OrdemPedido.'
             );
         }
     }

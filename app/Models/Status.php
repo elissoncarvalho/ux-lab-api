@@ -5,15 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Exame extends Model
+class Status extends Model
 {
     use SoftDeletes;
 
-    function status()
+    protected $table = 'status';
+
+    function exames()
     {
-        return $this->hasOne(
-            'App\Models\Status',
-            'status_id',
+        return $this->hasMany(
+            'App\Models\Exame',
+            'exame_id',
             'id'
         );
     }
